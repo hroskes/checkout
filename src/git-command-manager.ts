@@ -484,7 +484,7 @@ class GitCommandManager {
     allowAllExitCodes = false,
     silent = false,
     customListeners = {},
-    cwd = null
+    cwd? = null
   ): Promise<GitOutput> {
     if (cwd === null) {
       cwd = this.workingDirectory
