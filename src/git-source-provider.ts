@@ -225,6 +225,7 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
       await git.execGit(['commit', '-m', 'dummy', '--allow-empty'], cwd=submoduledir)
       await git.execGit(['config', 'core.sparsecheckout', 'true'], cwd=submoduledir)
       await fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '')
+      core.endGroup()
 
       // Checkout submodules
       core.startGroup('Fetching submodules')
