@@ -483,9 +483,14 @@ class GitCommandManager {
     args: string[],
     allowAllExitCodes = false,
     silent = false,
-    customListeners = {}
+    customListeners = {},
+    cwd = null
   ): Promise<GitOutput> {
-    fshelper.directoryExistsSync(this.workingDirectory, true)
+    if (cwd === null) {
+      cwd = this.workingDirectory
+    }
+
+    fshelper.directoryExistsSync(cwd, true)
 
     const result = new GitOutput()
 
@@ -507,7 +512,7 @@ class GitCommandManager {
 
     const stdout: string[] = []
     const options = {
-      cwd: this.workingDirectory,
+      cwd: cwd,
       env,
       silent,
       ignoreReturnCode: allowAllExitCodes,

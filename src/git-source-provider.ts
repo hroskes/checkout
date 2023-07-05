@@ -218,6 +218,14 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
       await authHelper.configureGlobalAuth()
       core.endGroup()
 
+      // Set up sparse checkout for test/data
+      core.startGroup('Setting up sparse checkout for test/data')
+      submoduledir = path.join(git.workingDirectory, 'test', 'data')
+      await git.execGit(['init'], cwd=submoduledir)
+      await git.execGit(['commit', '-m', 'dummy', '--allow-empty'], cwd=submoduledir)
+      await git.execGit(['config', 'core.sparsecheckout', 'true'], cwd=submoduledir)
+      await fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '')
+
       // Checkout submodules
       core.startGroup('Fetching submodules')
       await git.submoduleSync(settings.nestedSubmodules)
