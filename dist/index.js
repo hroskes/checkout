@@ -166,7 +166,7 @@ class GitAuthHelper {
         this.tokenConfigKey = `http.${serverUrl.origin}/.extraheader`; // "origin" is SCHEME://HOSTNAME[:PORT]
         const basicCredential = Buffer.from(`x-access-token:${this.settings.authToken}`, 'utf8').toString('base64');
         core.setSecret(basicCredential);
-        this.tokenPlaceholderConfigValue = `AUTHORIZATION: basic DUMMYDUMMYDUMMY`;
+        this.tokenPlaceholderConfigValue = `AUTHORIZATION: basic ***`;
         this.tokenConfigValue = `AUTHORIZATION: basic ${basicCredential}`;
         // Instead of SSH URL
         this.insteadOfKey = `url.${serverUrl.origin}/.insteadOf`; // "origin" is SCHEME://HOSTNAME[:PORT]
@@ -260,7 +260,7 @@ class GitAuthHelper {
                 // Replace the placeholder
                 const configPaths = output.match(/(?<=(^|\n)file:)[^\t]+(?=\tremote\.origin\.url)/g) || [];
                 for (const configPath of configPaths) {
-                    core.info(`Replacing token placeholder in '${configPath}'`);
+                    core.debug(`Replacing token placeholder in '${configPath}'`);
                     yield this.replaceTokenPlaceholder(configPath);
                 }
                 if (this.settings.sshKey) {
@@ -370,32 +370,6 @@ class GitAuthHelper {
             assert.ok(configPath, 'configPath is not defined');
             let content = (yield fs.promises.readFile(configPath)).toString();
             const placeholderIndex = content.indexOf(this.tokenPlaceholderConfigValue);
-            core.info('=====================');
-            core.info(content);
-            core.info('=====================');
-            core.info(this.tokenPlaceholderConfigValue);
-            core.info('=====================');
-            core.info(placeholderIndex.toString());
-            core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue).toString());
-            core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue.trim()).toString());
-            core.info(content.indexOf('AUTH').toString());
-            core.info(content.indexOf('AUTHORIZATION').toString());
-            core.info(content.indexOf('AUTHORIZATION: basic').toString());
-            core.info(content.indexOf('AUTHORIZATION: basic ').toString());
-            core.info(content.indexOf('AUTHORIZATION: basic DUMMY').toString());
-            core.info(content.indexOf('AUTHORIZATION: basic DUMMYDUMMY').toString());
-            core.info(content.indexOf('AUTHORIZATION: basic DUMMYDUMMYDUMMY').toString());
-            core.info(content.indexOf('DUMMY').toString());
-            core.info(content.indexOf('DUMMYDUMMY').toString());
-            core.info(content.indexOf('DUMMYDUMMYDUMMY').toString());
-            const authindex = content.indexOf('AUTHORIZATION');
-            for (let i = authindex; i < content.length; i++) {
-                core.info(content.charAt(i) + " " + content.charCodeAt(i).toString());
-            }
-            const myslice = content.slice(authindex + 16, authindex + 1000);
-            core.info(myslice);
-            core.info(content.indexOf(myslice).toString());
-            core.info('=====================');
             if (placeholderIndex < 0 ||
                 placeholderIndex != content.lastIndexOf(this.tokenPlaceholderConfigValue)) {
                 throw new Error(`Unable to replace auth placeholder in ${configPath}`);
