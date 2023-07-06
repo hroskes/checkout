@@ -1312,6 +1312,8 @@ function getSource(settings) {
                 const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data');
                 yield git.init(submoduledir);
                 // this is necessary or submoduleSync doesn't work
+                yield git.config('user.name', 'nobody', false, false, submoduledir);
+                yield git.config('user.email', 'nobody@nobody.com', false, false, submoduledir);
                 yield git.commit('dummy', true, submoduledir);
                 yield git.config('core.sparsecheckout', 'true', false, false, submoduledir);
                 yield fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '');
