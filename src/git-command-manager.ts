@@ -408,7 +408,7 @@ class GitCommandManager {
   }
 
   async submoduleUpdate(fetchDepth: number, recursive: boolean): Promise<void> {
-    const args = ['-c', 'protocol.version=2', '-c', 'protocol.file.allow=true']
+    const args = ['-c', 'protocol.version=2', '-c', 'protocol.file.allow=always']
     args.push('submodule', 'update', '--init', '--force')
     if (fetchDepth > 0) {
       args.push(`--depth=${fetchDepth}`)
