@@ -215,10 +215,19 @@ class GitCommandManager {
 
   async commit(
     message: string,
+    name?: string,
+    email?: string,
     allowEmpty?: boolean,
     cwd?: string
   ): Promise<void> {
-    const args: string[] = ['commit', '-m', message]
+    const args: string[] = []
+    if (name) {
+      args.push('-c', 'user.name='+name)
+    }
+    if (email) {
+      args.push('-c', 'user.email='+email)
+    }
+    args.push('commit', '-m', message)
     if (allowEmpty) {
       args.push('--allow-empty')
     }
