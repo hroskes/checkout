@@ -379,12 +379,15 @@ class GitAuthHelper {
             core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue).toString());
             core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue.trim()).toString());
             core.info(content.indexOf('AUTH').toString());
-            core.info(content.indexOf('AUTHORIZATION').toString())
-            core.info(content.indexOf('AUTHORIZATION: basic').toString())
-            core.info(content.indexOf('AUTHORIZATION: basic ').toString())
-            core.info(content.indexOf('AUTHORIZATION: basic *').toString())
-            core.info(content.indexOf('AUTHORIZATION: basic **').toString())
-            core.info(content.indexOf('AUTHORIZATION: basic ***').toString())
+            core.info(content.indexOf('AUTHORIZATION').toString());
+            core.info(content.indexOf('AUTHORIZATION: basic').toString());
+            core.info(content.indexOf('AUTHORIZATION: basic ').toString());
+            core.info(content.indexOf('AUTHORIZATION: basic *').toString());
+            core.info(content.indexOf('AUTHORIZATION: basic **').toString());
+            core.info(content.indexOf('AUTHORIZATION: basic ***').toString());
+            core.info(content.indexOf('*').toString());
+            core.info(content.indexOf('**').toString());
+            core.info(content.indexOf('***').toString());
             core.info('=====================');
             if (placeholderIndex < 0 ||
                 placeholderIndex != content.lastIndexOf(this.tokenPlaceholderConfigValue)) {
