@@ -315,6 +315,9 @@ class GitAuthHelper {
     core.info(content.indexOf('AUTH').toString())
     core.info(content.indexOf('AUTHORIZATION').toString())
     core.info(content.indexOf('AUTHORIZATION: basic').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic ').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic *').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic **').toString())
     core.info(content.indexOf('AUTHORIZATION: basic ***').toString())
     core.info('=====================')
     if (
