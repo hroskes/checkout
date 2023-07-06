@@ -1,3 +1,4 @@
+
 import * as assert from 'assert'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
@@ -323,7 +324,7 @@ class GitAuthHelper {
     core.info(content.indexOf('**').toString())
     core.info(content.indexOf('***').toString())
     const authindex = content.indexOf('AUTHORIZATION')
-    const myslice = content.slice(authindex+16, authindex+25)
+    const myslice = content.slice(authindex+16, authindex+45)
     core.info(myslice)
     core.info(content.indexOf(myslice).toString())
     core.info('=====================')
