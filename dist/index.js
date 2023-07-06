@@ -1343,6 +1343,7 @@ function getSource(settings) {
             // Submodules
             if (settings.submodules) {
                 // Set up sparse checkout for test/data
+                /*
                 core.startGroup('Setting up sparse checkout for test/data');
                 const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data');
                 yield git.submoduleInit([path.join('test', 'data')]);
@@ -1352,6 +1353,7 @@ function getSource(settings) {
                 yield git.config('core.sparsecheckout', 'true', false, false, submoduledir);
                 yield fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '');
                 core.endGroup();
+                */
                 // Temporarily override global config
                 core.startGroup('Setting up auth for fetching submodules');
                 yield authHelper.configureGlobalAuth();
