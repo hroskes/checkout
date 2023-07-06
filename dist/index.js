@@ -260,7 +260,7 @@ class GitAuthHelper {
                 // Replace the placeholder
                 const configPaths = output.match(/(?<=(^|\n)file:)[^\t]+(?=\tremote\.origin\.url)/g) || [];
                 for (const configPath of configPaths) {
-                    core.debug(`Replacing token placeholder in '${configPath}'`);
+                    core.info(`Replacing token placeholder in '${configPath}'`);
                     yield this.replaceTokenPlaceholder(configPath);
                 }
                 if (this.settings.sshKey) {

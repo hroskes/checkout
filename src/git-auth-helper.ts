@@ -167,7 +167,7 @@ class GitAuthHelper {
       const configPaths: string[] =
         output.match(/(?<=(^|\n)file:)[^\t]+(?=\tremote\.origin\.url)/g) || []
       for (const configPath of configPaths) {
-        core.debug(`Replacing token placeholder in '${configPath}'`)
+        core.info(`Replacing token placeholder in '${configPath}'`)
         await this.replaceTokenPlaceholder(configPath)
       }
 
