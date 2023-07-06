@@ -774,6 +774,12 @@ class GitCommandManager {
             return output.stdout;
         });
     }
+    submoduleInit(submodules) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const args = ['submodule', 'init', ...submodules];
+            yield this.execGit(args);
+        });
+    }
     submoduleSync(recursive) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = ['submodule', 'sync'];
@@ -1310,6 +1316,7 @@ function getSource(settings) {
                 // Set up sparse checkout for test/data
                 core.startGroup('Setting up sparse checkout for test/data');
                 const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data');
+                yield git.submoduleInit([path.join('test', 'data')]);
                 yield git.init(submoduledir);
                 // this is necessary or submoduleSync doesn't work
                 yield git.config('user.name', 'nobody', false, false, submoduledir);
