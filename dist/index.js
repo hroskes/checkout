@@ -611,14 +611,30 @@ class GitCommandManager {
             yield this.execGit(args);
         });
     }
-    config(configKey, configValue, globalConfig, add) {
+    commit(message, name, email, allowEmpty, cwd) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const args = [];
+            if (name) {
+                args.push('-c', 'user.name=' + name);
+            }
+            if (email) {
+                args.push('-c', 'user.email=' + email);
+            }
+            args.push('commit', '-m', message);
+            if (allowEmpty) {
+                args.push('--allow-empty');
+            }
+            yield this.execGit(args, false, false, {}, cwd);
+        });
+    }
+    config(configKey, configValue, globalConfig, add, cwd) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = ['config', globalConfig ? '--global' : '--local'];
             if (add) {
                 args.push('--add');
             }
             args.push(...[configKey, configValue]);
-            yield this.execGit(args);
+            yield this.execGit(args, false, false, {}, cwd);
         });
     }
     configExists(configKey, globalConfig) {
@@ -690,9 +706,9 @@ class GitCommandManager {
     getWorkingDirectory() {
         return this.workingDirectory;
     }
-    init() {
+    init(cwd) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.execGit(['init', this.workingDirectory]);
+            yield this.execGit(['init', cwd === undefined ? this.workingDirectory : cwd]);
         });
     }
     isDetached() {
@@ -754,6 +770,12 @@ class GitCommandManager {
             return output.exitCode === 0;
         });
     }
+    submoduleAbsorbGitDirs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const args = ['submodule', 'absorbgitdirs'];
+            yield this.execGit(args);
+        });
+    }
     submoduleForeach(command, recursive) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = ['submodule', 'foreach'];
@@ -763,6 +785,12 @@ class GitCommandManager {
             args.push(command);
             const output = yield this.execGit(args);
             return output.stdout;
+        });
+    }
+    submoduleInit(submodules) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const args = ['submodule', 'init', ...submodules];
+            yield this.execGit(args);
         });
     }
     submoduleSync(recursive) {
@@ -776,7 +804,7 @@ class GitCommandManager {
     }
     submoduleUpdate(fetchDepth, recursive) {
         return __awaiter(this, void 0, void 0, function* () {
-            const args = ['-c', 'protocol.version=2'];
+            const args = ['-c', 'protocol.version=2', '-c', 'protocol.file.allow=always'];
             args.push('submodule', 'update', '--init', '--force');
             if (fetchDepth > 0) {
                 args.push(`--depth=${fetchDepth}`);
@@ -849,9 +877,12 @@ class GitCommandManager {
             return result;
         });
     }
-    execGit(args, allowAllExitCodes = false, silent = false, customListeners = {}) {
+    execGit(args, allowAllExitCodes = false, silent = false, customListeners = {}, cwd) {
         return __awaiter(this, void 0, void 0, function* () {
-            fshelper.directoryExistsSync(this.workingDirectory, true);
+            if (cwd === undefined) {
+                cwd = this.workingDirectory;
+            }
+            fshelper.directoryExistsSync(cwd, true);
             const result = new GitOutput();
             const env = {};
             for (const key of Object.keys(process.env)) {
@@ -868,7 +899,7 @@ class GitCommandManager {
             const mergedListeners = Object.assign(Object.assign({}, defaultListener), customListeners);
             const stdout = [];
             const options = {
-                cwd: this.workingDirectory,
+                cwd: cwd,
                 env,
                 silent,
                 ignoreReturnCode: allowAllExitCodes,
@@ -1137,6 +1168,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.cleanup = exports.getSource = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const fs = __importStar(__nccwpck_require__(7147));
 const fsHelper = __importStar(__nccwpck_require__(7219));
 const gitAuthHelper = __importStar(__nccwpck_require__(2565));
 const gitCommandManager = __importStar(__nccwpck_require__(738));
@@ -1290,6 +1322,16 @@ function getSource(settings) {
             core.endGroup();
             // Submodules
             if (settings.submodules) {
+                // Set up sparse checkout for test/data
+                core.startGroup('Setting up sparse checkout for test/data');
+                const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data');
+                yield git.submoduleInit([path.join('test', 'data')]);
+                yield git.init(submoduledir);
+                // this is necessary or submoduleSync doesn't work
+                yield git.commit('dummy', 'nobody', 'nobody@nobody.com', true, submoduledir);
+                yield git.config('core.sparsecheckout', 'true', false, false, submoduledir);
+                yield fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '');
+                core.endGroup();
                 // Temporarily override global config
                 core.startGroup('Setting up auth for fetching submodules');
                 yield authHelper.configureGlobalAuth();
@@ -1299,6 +1341,7 @@ function getSource(settings) {
                 yield git.submoduleSync(settings.nestedSubmodules);
                 yield git.submoduleUpdate(settings.fetchDepth, settings.nestedSubmodules);
                 yield git.submoduleForeach('git config --local gc.auto 0', settings.nestedSubmodules);
+                yield git.submoduleAbsorbGitDirs();
                 core.endGroup();
                 // Persist credentials
                 if (settings.persistCredentials) {

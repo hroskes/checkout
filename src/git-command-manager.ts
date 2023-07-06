@@ -21,11 +21,19 @@ export interface IGitCommandManager {
   sparseCheckoutNonConeMode(sparseCheckout: string[]): Promise<void>
   checkout(ref: string, startPoint: string): Promise<void>
   checkoutDetach(): Promise<void>
+  commit(
+    message: string,
+    name?: string,
+    email?: string,
+    allowEmpty?: boolean,
+    cwd?: string
+  ): Promise<void>
   config(
     configKey: string,
     configValue: string,
     globalConfig?: boolean,
-    add?: boolean
+    add?: boolean,
+    cwd?: string
   ): Promise<void>
   configExists(configKey: string, globalConfig?: boolean): Promise<boolean>
   fetch(
@@ -37,7 +45,7 @@ export interface IGitCommandManager {
   ): Promise<void>
   getDefaultBranch(repositoryUrl: string): Promise<string>
   getWorkingDirectory(): string
-  init(): Promise<void>
+  init(cwd?: string): Promise<void>
   isDetached(): Promise<boolean>
   lfsFetch(ref: string): Promise<void>
   lfsInstall(): Promise<void>
@@ -47,7 +55,9 @@ export interface IGitCommandManager {
   revParse(ref: string): Promise<string>
   setEnvironmentVariable(name: string, value: string): void
   shaExists(sha: string): Promise<boolean>
+  submoduleAbsorbGitDirs(): Promise<void>
   submoduleForeach(command: string, recursive: boolean): Promise<string>
+  submoduleInit(submodules: string[]): Promise<void>
   submoduleSync(recursive: boolean): Promise<void>
   submoduleUpdate(fetchDepth: number, recursive: boolean): Promise<void>
   submoduleStatus(): Promise<boolean>
@@ -206,18 +216,40 @@ class GitCommandManager {
     await this.execGit(args)
   }
 
+  async commit(
+    message: string,
+    name?: string,
+    email?: string,
+    allowEmpty?: boolean,
+    cwd?: string
+  ): Promise<void> {
+    const args: string[] = []
+    if (name) {
+      args.push('-c', 'user.name='+name)
+    }
+    if (email) {
+      args.push('-c', 'user.email='+email)
+    }
+    args.push('commit', '-m', message)
+    if (allowEmpty) {
+      args.push('--allow-empty')
+    }
+    await this.execGit(args, false, false, {}, cwd)
+  }
+
   async config(
     configKey: string,
     configValue: string,
     globalConfig?: boolean,
-    add?: boolean
+    add?: boolean,
+    cwd?: string
   ): Promise<void> {
     const args: string[] = ['config', globalConfig ? '--global' : '--local']
     if (add) {
       args.push('--add')
     }
     args.push(...[configKey, configValue])
-    await this.execGit(args)
+    await this.execGit(args, false, false, {}, cwd)
   }
 
   async configExists(
@@ -306,8 +338,8 @@ class GitCommandManager {
     return this.workingDirectory
   }
 
-  async init(): Promise<void> {
-    await this.execGit(['init', this.workingDirectory])
+  async init(cwd?: string): Promise<void> {
+    await this.execGit(['init', cwd === undefined ? this.workingDirectory : cwd])
   }
 
   async isDetached(): Promise<boolean> {
@@ -368,6 +400,11 @@ class GitCommandManager {
     return output.exitCode === 0
   }
 
+  async submoduleAbsorbGitDirs() : Promise<void> {
+    const args = ['submodule', 'absorbgitdirs']
+    await this.execGit(args)
+  }
+
   async submoduleForeach(command: string, recursive: boolean): Promise<string> {
     const args = ['submodule', 'foreach']
     if (recursive) {
@@ -377,6 +414,11 @@ class GitCommandManager {
 
     const output = await this.execGit(args)
     return output.stdout
+  }
+
+  async submoduleInit(submodules: string[]): Promise<void> {
+    const args = ['submodule', 'init', ...submodules]
+    await this.execGit(args)
   }
 
   async submoduleSync(recursive: boolean): Promise<void> {
@@ -389,7 +431,7 @@ class GitCommandManager {
   }
 
   async submoduleUpdate(fetchDepth: number, recursive: boolean): Promise<void> {
-    const args = ['-c', 'protocol.version=2']
+    const args = ['-c', 'protocol.version=2', '-c', 'protocol.file.allow=always']
     args.push('submodule', 'update', '--init', '--force')
     if (fetchDepth > 0) {
       args.push(`--depth=${fetchDepth}`)
@@ -483,9 +525,14 @@ class GitCommandManager {
     args: string[],
     allowAllExitCodes = false,
     silent = false,
-    customListeners = {}
+    customListeners = {},
+    cwd?
   ): Promise<GitOutput> {
-    fshelper.directoryExistsSync(this.workingDirectory, true)
+    if (cwd === undefined) {
+      cwd = this.workingDirectory
+    }
+
+    fshelper.directoryExistsSync(cwd, true)
 
     const result = new GitOutput()
 
@@ -507,7 +554,7 @@ class GitCommandManager {
 
     const stdout: string[] = []
     const options = {
-      cwd: this.workingDirectory,
+      cwd: cwd,
       env,
       silent,
       ignoreReturnCode: allowAllExitCodes,

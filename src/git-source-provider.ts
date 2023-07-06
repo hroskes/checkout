@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as fs from 'fs'
 import * as fsHelper from './fs-helper'
 import * as gitAuthHelper from './git-auth-helper'
 import * as gitCommandManager from './git-command-manager'
@@ -213,6 +214,18 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
 
     // Submodules
     if (settings.submodules) {
+      // Set up sparse checkout for test/data
+      core.startGroup('Setting up sparse checkout for test/data')
+      const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data')
+      await git.submoduleInit([path.join('test', 'data')])
+      await git.init(submoduledir)
+      // this is necessary or submoduleSync doesn't work
+      await git.commit('dummy', 'nobody', 'nobody@nobody.com', true, submoduledir)
+
+      await git.config('core.sparsecheckout', 'true', false, false, submoduledir)
+      await fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '')
+      core.endGroup()
+
       // Temporarily override global config
       core.startGroup('Setting up auth for fetching submodules')
       await authHelper.configureGlobalAuth()
@@ -226,6 +239,7 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
         'git config --local gc.auto 0',
         settings.nestedSubmodules
       )
+      await git.submoduleAbsorbGitDirs()
       core.endGroup()
 
       // Persist credentials
