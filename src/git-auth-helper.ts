@@ -308,10 +308,15 @@ class GitAuthHelper {
       placeholderIndex < 0 ||
       placeholderIndex != content.lastIndexOf(this.tokenPlaceholderConfigValue)
     ) {
+      core.info('=====================')
       core.info(content)
+      core.info('=====================')
       core.info(this.tokenPlaceholderConfigValue)
+      core.info('=====================')
       core.info(placeholderIndex.toString())
       core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue).toString())
+      core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue.trim()).toString())
+      core.info('=====================')
       throw new Error(`Unable to replace auth placeholder in ${configPath}`)
     }
     assert.ok(this.tokenConfigValue, 'tokenConfigValue is not defined')
