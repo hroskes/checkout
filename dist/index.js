@@ -611,9 +611,16 @@ class GitCommandManager {
             yield this.execGit(args);
         });
     }
-    commit(message, allowEmpty, cwd) {
+    commit(message, name, email, allowEmpty, cwd) {
         return __awaiter(this, void 0, void 0, function* () {
-            const args = ['commit', '-m', message];
+            const args = [];
+            if (name) {
+                args.push('-c', 'user.name=' + name);
+            }
+            if (email) {
+                args.push('-c', 'user.email=' + email);
+            }
+            args.push('commit', '-m', message);
             if (allowEmpty) {
                 args.push('--allow-empty');
             }
@@ -1309,21 +1316,19 @@ function getSource(settings) {
             core.endGroup();
             // Submodules
             if (settings.submodules) {
-                // Temporarily override global config
-                core.startGroup('Setting up auth for fetching submodules');
-                yield authHelper.configureGlobalAuth();
-                core.endGroup();
                 // Set up sparse checkout for test/data
                 core.startGroup('Setting up sparse checkout for test/data');
                 const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data');
                 yield git.submoduleInit([path.join('test', 'data')]);
                 yield git.init(submoduledir);
                 // this is necessary or submoduleSync doesn't work
-                yield git.config('user.name', 'nobody', false, false, submoduledir);
-                yield git.config('user.email', 'nobody@nobody.com', false, false, submoduledir);
-                yield git.commit('dummy', true, submoduledir);
+                yield git.commit('dummy', 'nobody', 'nobody@nobody.com', true, submoduledir);
                 yield git.config('core.sparsecheckout', 'true', false, false, submoduledir);
                 yield fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '');
+                core.endGroup();
+                // Temporarily override global config
+                core.startGroup('Setting up auth for fetching submodules');
+                yield authHelper.configureGlobalAuth();
                 core.endGroup();
                 // Checkout submodules
                 core.startGroup('Fetching submodules');
