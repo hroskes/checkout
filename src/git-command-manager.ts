@@ -21,11 +21,17 @@ export interface IGitCommandManager {
   sparseCheckoutNonConeMode(sparseCheckout: string[]): Promise<void>
   checkout(ref: string, startPoint: string): Promise<void>
   checkoutDetach(): Promise<void>
+  commit(
+    message: string,
+    allowEmpty?: boolean,
+    cwd?: string
+  ): Promise<void>
   config(
     configKey: string,
     configValue: string,
     globalConfig?: boolean,
-    add?: boolean
+    add?: boolean,
+    cwd?: string
   ): Promise<void>
   configExists(configKey: string, globalConfig?: boolean): Promise<boolean>
   fetch(
@@ -206,18 +212,31 @@ class GitCommandManager {
     await this.execGit(args)
   }
 
+  async commit(
+    message: string,
+    allowEmpty?: boolean,
+    cwd?: string
+  ): Promise<void> {
+    const args: string[] = ['commit', '-m', message]
+    if (allowEmpty) {
+      args.push('--allow-empty')
+    }
+    await this.execGit(args, false, false, {}, cwd)
+  }
+
   async config(
     configKey: string,
     configValue: string,
     globalConfig?: boolean,
-    add?: boolean
+    add?: boolean,
+    cwd?: string
   ): Promise<void> {
     const args: string[] = ['config', globalConfig ? '--global' : '--local']
     if (add) {
       args.push('--add')
     }
     args.push(...[configKey, configValue])
-    await this.execGit(args)
+    await this.execGit(args, false, false, {}, cwd)
   }
 
   async configExists(
@@ -307,7 +326,7 @@ class GitCommandManager {
   }
 
   async init(cwd?: string): Promise<void> {
-    await this.execGit(['init', this.workingDirectory])
+    await this.execGit(['init', cwd])
   }
 
   async isDetached(): Promise<boolean> {
