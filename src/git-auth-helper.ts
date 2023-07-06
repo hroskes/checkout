@@ -60,7 +60,7 @@ class GitAuthHelper {
       'utf8'
     ).toString('base64')
     core.setSecret(basicCredential)
-    this.tokenPlaceholderConfigValue = `AUTHORIZATION: basic ***`
+    this.tokenPlaceholderConfigValue = `AUTHORIZATION: basic DUMMYDUMMYDUMMY`
     this.tokenConfigValue = `AUTHORIZATION: basic ${basicCredential}`
 
     // Instead of SSH URL
@@ -317,12 +317,12 @@ class GitAuthHelper {
     core.info(content.indexOf('AUTHORIZATION').toString())
     core.info(content.indexOf('AUTHORIZATION: basic').toString())
     core.info(content.indexOf('AUTHORIZATION: basic ').toString())
-    core.info(content.indexOf('AUTHORIZATION: basic *').toString())
-    core.info(content.indexOf('AUTHORIZATION: basic **').toString())
-    core.info(content.indexOf('AUTHORIZATION: basic ***').toString())
-    core.info(content.indexOf('*').toString())
-    core.info(content.indexOf('**').toString())
-    core.info(content.indexOf('***').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic DUMMY').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic DUMMYDUMMY').toString())
+    core.info(content.indexOf('AUTHORIZATION: basic DUMMYDUMMYDUMMY').toString())
+    core.info(content.indexOf('DUMMY').toString())
+    core.info(content.indexOf('DUMMYDUMMY').toString())
+    core.info(content.indexOf('DUMMYDUMMYDUMMY').toString())
     const authindex = content.indexOf('AUTHORIZATION')
     for (let i = authindex; i < content.length; i++) {
       core.info(content.charAt(i) + " " + content.charCodeAt(i).toString())
