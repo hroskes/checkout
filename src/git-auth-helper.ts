@@ -312,6 +312,7 @@ class GitAuthHelper {
     core.info(placeholderIndex.toString())
     core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue).toString())
     core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue.trim()).toString())
+    core.info(content.indexOf('AUTH').toString())
     core.info('=====================')
     if (
       placeholderIndex < 0 ||
