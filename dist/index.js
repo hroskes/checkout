@@ -1310,7 +1310,7 @@ function getSource(settings) {
             // Submodules
             if (settings.submodules) {
                 // Temporarily override global config
-                core.startGroup('Setting up auth for fetching submodules ?????');
+                core.startGroup('Setting up auth for fetching submodules');
                 yield authHelper.configureGlobalAuth();
                 core.endGroup();
                 // Set up sparse checkout for test/data
