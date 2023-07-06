@@ -54,6 +54,7 @@ export interface IGitCommandManager {
   setEnvironmentVariable(name: string, value: string): void
   shaExists(sha: string): Promise<boolean>
   submoduleForeach(command: string, recursive: boolean): Promise<string>
+  submoduleInit(submodules: string[]): Promise<void>
   submoduleSync(recursive: boolean): Promise<void>
   submoduleUpdate(fetchDepth: number, recursive: boolean): Promise<void>
   submoduleStatus(): Promise<boolean>
@@ -396,6 +397,11 @@ class GitCommandManager {
 
     const output = await this.execGit(args)
     return output.stdout
+  }
+
+  async submoduleInit(submodules: string[]): Promise<void> {
+    const args = ['submodule', 'init', ...submodules]
+    await this.execGit(args)
   }
 
   async submoduleSync(recursive: boolean): Promise<void> {
