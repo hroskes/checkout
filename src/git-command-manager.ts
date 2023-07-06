@@ -55,6 +55,7 @@ export interface IGitCommandManager {
   revParse(ref: string): Promise<string>
   setEnvironmentVariable(name: string, value: string): void
   shaExists(sha: string): Promise<boolean>
+  submoduleAbsorbGitDirs(): Promise<void>
   submoduleForeach(command: string, recursive: boolean): Promise<string>
   submoduleInit(submodules: string[]): Promise<void>
   submoduleSync(recursive: boolean): Promise<void>
@@ -397,6 +398,11 @@ class GitCommandManager {
     const args = ['rev-parse', '--verify', '--quiet', `${sha}^{object}`]
     const output = await this.execGit(args, true)
     return output.exitCode === 0
+  }
+
+  async submoduleAbsorbGitDirs() : Promise<void> {
+    const args = ['submodule', 'absorbgitdirs']
+    await this.execGit(args)
   }
 
   async submoduleForeach(command: string, recursive: boolean): Promise<string> {

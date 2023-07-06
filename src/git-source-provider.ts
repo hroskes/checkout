@@ -239,6 +239,7 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
         'git config --local gc.auto 0',
         settings.nestedSubmodules
       )
+      await git.submoduleAbsorbGitDirs()
       core.endGroup()
 
       // Persist credentials
