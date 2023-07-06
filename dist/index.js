@@ -796,6 +796,12 @@ class GitCommandManager {
             return output.exitCode === 0;
         });
     }
+    submoduleAbsorbGitDirs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const args = ['submodule', 'absorbgitdirs'];
+            yield this.execGit(args);
+        });
+    }
     submoduleForeach(command, recursive) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = ['submodule', 'foreach'];
@@ -1361,6 +1367,7 @@ function getSource(settings) {
                 yield git.submoduleSync(settings.nestedSubmodules);
                 yield git.submoduleUpdate(settings.fetchDepth, settings.nestedSubmodules);
                 yield git.submoduleForeach('git config --local gc.auto 0', settings.nestedSubmodules);
+                yield git.submoduleAbsorbGitDirs();
                 core.endGroup();
                 // Persist credentials
                 if (settings.persistCredentials) {
