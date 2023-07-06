@@ -37,7 +37,7 @@ export interface IGitCommandManager {
   ): Promise<void>
   getDefaultBranch(repositoryUrl: string): Promise<string>
   getWorkingDirectory(): string
-  init(): Promise<void>
+  init(cwd?: string): Promise<void>
   isDetached(): Promise<boolean>
   lfsFetch(ref: string): Promise<void>
   lfsInstall(): Promise<void>
@@ -306,7 +306,7 @@ class GitCommandManager {
     return this.workingDirectory
   }
 
-  async init(): Promise<void> {
+  async init(cwd?: string): Promise<void> {
     await this.execGit(['init', this.workingDirectory])
   }
 
