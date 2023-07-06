@@ -215,7 +215,6 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
     // Submodules
     if (settings.submodules) {
       // Set up sparse checkout for test/data
-      /*
       core.startGroup('Setting up sparse checkout for test/data')
       const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data')
       await git.submoduleInit([path.join('test', 'data')])
@@ -226,7 +225,6 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
       await git.config('core.sparsecheckout', 'true', false, false, submoduledir)
       await fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '')
       core.endGroup()
-      */
 
       // Temporarily override global config
       core.startGroup('Setting up auth for fetching submodules')
