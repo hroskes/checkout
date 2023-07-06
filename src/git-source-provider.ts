@@ -224,7 +224,10 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
       const submoduledir = path.join(git.getWorkingDirectory(), 'test', 'data')
       await git.init(submoduledir)
       // this is necessary or submoduleSync doesn't work
+      await git.config('user.name', 'nobody', false, false, submoduledir)
+      await git.config('user.email', 'nobody@nobody.com', false, false, submoduledir)
       await git.commit('dummy', true, submoduledir)
+
       await git.config('core.sparsecheckout', 'true', false, false, submoduledir)
       await fs.promises.writeFile(path.join(submoduledir, '.git', 'info', 'sparse-checkout'), '')
       core.endGroup()
