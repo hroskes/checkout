@@ -304,6 +304,15 @@ class GitAuthHelper {
     assert.ok(configPath, 'configPath is not defined')
     let content = (await fs.promises.readFile(configPath)).toString()
     const placeholderIndex = content.indexOf(this.tokenPlaceholderConfigValue)
+    core.info('=====================')
+    core.info(content)
+    core.info('=====================')
+    core.info(this.tokenPlaceholderConfigValue)
+    core.info('=====================')
+    core.info(placeholderIndex.toString())
+    core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue).toString())
+    core.info(content.lastIndexOf(this.tokenPlaceholderConfigValue.trim()).toString())
+    core.info('=====================')
     if (
       placeholderIndex < 0 ||
       placeholderIndex != content.lastIndexOf(this.tokenPlaceholderConfigValue)
