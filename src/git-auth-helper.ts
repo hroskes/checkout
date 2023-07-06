@@ -322,6 +322,10 @@ class GitAuthHelper {
     core.info(content.indexOf('*').toString())
     core.info(content.indexOf('**').toString())
     core.info(content.indexOf('***').toString())
+    const authindex = content.indexOf('AUTHORIZATION')
+    const myslice = content.slice(authindex+16, authindex+25)
+    core.info(myslice)
+    core.info(content.indexOf(myslice).toString())
     core.info('=====================')
     if (
       placeholderIndex < 0 ||
