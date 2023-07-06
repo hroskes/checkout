@@ -23,6 +23,8 @@ export interface IGitCommandManager {
   checkoutDetach(): Promise<void>
   commit(
     message: string,
+    name?: string,
+    email?: string,
     allowEmpty?: boolean,
     cwd?: string
   ): Promise<void>
